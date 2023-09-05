@@ -1,9 +1,12 @@
 from django.urls import include, path
-# from .views import recipe_list
-from .views import cat_list
+from rest_framework.routers import DefaultRouter
+# from rest_framework.authtoken import views
+
+from .views import RecipeViewSet
+
+router = DefaultRouter()
+router.register('recipes', RecipeViewSet, basename='recipes')
 
 urlpatterns = [ 
-    path('recipes/', cat_list),
-    # path('api/v1/', include(router.urls)),
-    # path('api/v1/api-token-auth/', views.obtain_auth_token), 
+    path('', include(router.urls)),
 ] 

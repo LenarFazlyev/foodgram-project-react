@@ -12,7 +12,7 @@ from rest_framework import serializers
 from recipes.models import Recipe
 
 
-class CatSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = '__all__' 
+        fields = ('title', 'description', 'cookingtime') 

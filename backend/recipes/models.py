@@ -5,7 +5,12 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    pass
+    title = models.CharField('Название тэга', max_length=128)
+    # color =
+    slug = models.SlugField('Слаг', unique=True)
+
+    def __str__(self):
+        return self.title
 
 
 class Ingredient(models.Model):
@@ -17,6 +22,7 @@ class Author(models.Model):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
 
 # подправь picture и on_delete
 class Recipe(models.Model):
@@ -40,12 +46,11 @@ class Recipe(models.Model):
     #     related_name='recipes',
     #     verbose_name='Ингридиенты'
     # )
-    # tags = models.ManyToManyField(
-    #     Tag,
-    #     # on_delete=
-    #     related_name='recipes',
-    #     verbose_name='Теги'
-    # )
+    tag = models.ManyToManyField(
+        Tag,
+        through='TagRecipe',
+        verbose_name='Теги'
+    )
     cookingtime = models.IntegerField('Время приготовления в минутах')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
@@ -56,3 +61,10 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'{self.title}'
+    
+class TagRecipe(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.tag}{self.recipe}'

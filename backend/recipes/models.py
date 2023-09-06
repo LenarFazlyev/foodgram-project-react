@@ -11,15 +11,21 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     pass
 
+class Author(models.Model):
+    first_name = models.CharField(max_length=128)
+    last_name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
 # подправь picture и on_delete
 class Recipe(models.Model):
-    # author = models.ForeignKey(
-    #     User,
-    #     on_delete=models.CASCADE,
-    #     related_name='recipes',
-    #     verbose_name='Автор',
-    # )
+    author = models.ForeignKey(
+        Author,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+        verbose_name='Автор',
+    )
     title = models.CharField('Название блюда', max_length=50)
     # picture = models.ImageField(
     #     'Фото рецепта',

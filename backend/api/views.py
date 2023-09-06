@@ -48,9 +48,13 @@
 
 from rest_framework import viewsets
 
-from api.serializers import RecipeSerializer
-from recipes.models import Recipe
+from api.serializers import RecipeSerializer, AuthorSerialiser
+from recipes.models import Recipe, Author
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+
+class AuthorViewSet(viewsets.ModelViewSet):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerialiser

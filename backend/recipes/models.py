@@ -7,7 +7,7 @@ User = get_user_model()
 class Tag(models.Model):
     title = models.CharField('Название тэга', max_length=128)
     # color =
-    slug = models.SlugField('Слаг', unique=True)
+    # slug = models.SlugField('Слаг', unique=True)
 
     def __str__(self):
         return self.title

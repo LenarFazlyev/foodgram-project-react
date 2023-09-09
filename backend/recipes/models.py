@@ -36,26 +36,26 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор',
     )
-    title = models.CharField('Название блюда', max_length=50)
+    name = models.CharField('Название блюда', max_length=200)
     # picture = models.ImageField(
     #     'Фото рецепта',
     #     upload_to='posts/',
     #     null=True,
     #     blank=True
     # )
-    description = models.TextField('Описание рецепта')
+    text = models.TextField('Описание рецепта')
     # ingredients = models.ManyToManyField(
     #     Ingredient,
     #     # on_delete=models.
     #     related_name='recipes',
     #     verbose_name='Ингридиенты'
     # )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         through='TagRecipe',
         verbose_name='Теги'
     )
-    cookingtime = models.IntegerField('Время приготовления в минутах')
+    cooking_time = models.IntegerField('Время приготовления в минутах')
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
     class Meta:
@@ -64,7 +64,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.name}'
     
 class TagRecipe(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)

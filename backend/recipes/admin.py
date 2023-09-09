@@ -1,35 +1,19 @@
 from django.contrib import admin
 
-from .models import Tag
+from .models import Tag, Recipe
+# from .models import Recipe, Author, Tag, TagRecipe
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'color', 'slug')
     list_editable = ('name', 'color', 'slug')
 
-# from .models import Recipe, Author, Tag, TagRecipe
+
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'author')
+    # list_editable = ('name',)
+    search_fields = ('author', 'name', 'tags')
+    list_filter = ('author', 'name', 'tags')
 
 
-# class RecipeAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'pk',
-#         'title',
-#         'author',
-#         'pub_date',
-#         'description',
-#     )
-#     # list_editable =
-#     search_fields = ('description',)
-#     list_filter = (
-#         'pub_date',
-#         'cookingtime',
-#     )
-#     empty_value = '-пусто-'
-
-
-# admin.site.register(
-#     Recipe,
-#     RecipeAdmin,
-# )
-# admin.site.register(Author)
+admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag, TagAdmin)
-# admin.site.register(TagRecipe)

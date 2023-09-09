@@ -16,7 +16,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'title')
+        fields = '__all__'
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -28,8 +28,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        # fields = '__all__' 
-        fields = ('id', 'author', 'title', 'description', 'cookingtime', 'tag')
+        fields = '__all__' 
+        # fields = ('id', 'author', 'title', 'description', 'cookingtime', 'tag')
     
     def create(self, validated_data):
         if 'tag' not in self.initial_data:
@@ -49,4 +49,4 @@ class AuthorSerialiser(serializers.ModelSerializer):
 
     class Meta:
         model = Author
-        fields = ('first_name', 'recipes')
+        fields = '__all__'

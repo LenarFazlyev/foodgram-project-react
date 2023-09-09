@@ -5,12 +5,16 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    title = models.CharField('Название тэга', max_length=128)
-    # color =
-    # slug = models.SlugField('Слаг', unique=True)
+    name = models.CharField('Название тэга', max_length=200)
+    color = models.CharField('Цвет в HEX', max_length=7)
+    slug = models.SlugField('Уникальный слаг', max_length=200 )
+
+    class Meta:
+        verbose_name = 'тег'
+        verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Ingredient(models.Model):

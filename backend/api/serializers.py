@@ -9,13 +9,25 @@
 
 from rest_framework import serializers
 
-from recipes.models import Recipe, Author, Tag, TagRecipe
+from recipes.models import (
+    Recipe,
+    Author,
+    Tag,
+    TagRecipe,
+    Ingredient,
+    IngredientRecipe,
+)
 
 
 class TagSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Tag
+        fields = '__all__'
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
         fields = '__all__'
 
 
@@ -28,9 +40,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = '__all__' 
+        fields = '__all__'
         # fields = ('id', 'author', 'title', 'description', 'cookingtime', 'tag')
-    
+
     def create(self, validated_data):
         if 'tag' not in self.initial_data:
             recipe = Recipe.objects.create(**validated_data)

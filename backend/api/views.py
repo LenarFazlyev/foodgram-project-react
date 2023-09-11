@@ -72,7 +72,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     serializer_class = AuthorSerialiser
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 

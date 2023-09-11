@@ -58,11 +58,13 @@ class Recipe(models.Model):
     text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(
         Ingredient,
+        related_name='recipes',
         through='IngredientRecipe',
         verbose_name='Ингридиенты',
     )
     tags = models.ManyToManyField(
         Tag,
+        related_name='recipes',
         through='TagRecipe',
         verbose_name='Теги',
     )
@@ -79,17 +81,37 @@ class Recipe(models.Model):
 
 
 class TagRecipe(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self):
         return f'{self.tag}{self.recipe}'
 
 
 class IngredientRecipe(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='ingredientrecipe',
+        on_delete=models.CASCADE,
+        verbose_name='рецепт'
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        related_name='ingredientrecipe',
+        on_delete=models.CASCADE,
+        verbose_name='ингредиент'
+    )
     amount = models.IntegerField('Количество')
+
+    class Meta:
+        verbose_name = 'ингредиент/рецепт'
+        verbose_name_plural = 'Ингредиенты/Рецепт'        
 
     def __str__(self):
         return f'{self.ingredient}{self.recipe}'

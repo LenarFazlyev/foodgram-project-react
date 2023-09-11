@@ -23,17 +23,27 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class IngredientrecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = IngredientRecipe
+        fields = '__all__'
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     # author = serializers.SlugRelatedField(
     #     # read_only=True,
     #     slug_field='first_name',
     # )
-    tag = TagSerializer(many=True, required=False)
+    tags = TagSerializer(many=True, required=False)
+    ingredients = IngredientrecipeSerializer(
+        source='ingredientrecipe', many=True
+    )
 
     class Meta:
         model = Recipe
-        fields = '__all__'
-        # fields = ('id', 'author', 'title', 'description', 'cookingtime', 'tag')
+        # fields = '__all__'
+        fields = ('id', 'author', 'name', 'text', 'ingredients', 'tags')
 
     def create(self, validated_data):
         if 'tag' not in self.initial_data:

@@ -1,4 +1,3 @@
-from django.db.models import F
 from rest_framework import serializers
 import webcolors
 
@@ -25,9 +24,27 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientrecipeSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        source='ingredient.id',
+        read_only=True,
+    )
+    name = serializers.PrimaryKeyRelatedField(
+        source='ingredient.name',
+        read_only=True,
+    )
+    measurement_unit = serializers.PrimaryKeyRelatedField(
+        source='ingredient.measurement_unit',
+        read_only=True,
+    )
+
     class Meta:
         model = IngredientRecipe
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'amount',
+            'measurement_unit',
+        )
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -36,11 +53,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     #     slug_field='first_name',
     # )
     tags = TagSerializer(many=True, required=False)
-    # ingredients = IngredientrecipeSerializer(
-    #     source='ingredient',
-    #     many=True,
-    # )
-    ingredients = serializers.SerializerMethodField()
+    ingredients = IngredientrecipeSerializer(
+        source='ingredient',
+        many=True,
+        read_only=True,
+    )
 
     class Meta:
         model = Recipe
@@ -58,14 +75,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             current_tag, status = Tag.objects.get_or_create(**tag)
             TagRecipe.objects.create(tag=current_tag, recipe=recipe)
         return recipe
-
-    def get_ingredients(self, obj):
-        return obj.ingredients.values(
-            'id',
-            'name',
-            'measurement_unit',
-            amount=F('recipe__amount'),
-        )
 
 
 class AuthorSerialiser(serializers.ModelSerializer):

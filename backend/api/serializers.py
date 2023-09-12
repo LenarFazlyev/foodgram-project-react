@@ -1,3 +1,4 @@
+from django.db.models import F
 from rest_framework import serializers
 import webcolors
 
@@ -24,7 +25,6 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientrecipeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = IngredientRecipe
         fields = '__all__'
@@ -36,14 +36,16 @@ class RecipeSerializer(serializers.ModelSerializer):
     #     slug_field='first_name',
     # )
     tags = TagSerializer(many=True, required=False)
-    ingredients = IngredientrecipeSerializer(
-        source='ingredientrecipe', many=True
-    )
+    # ingredients = IngredientrecipeSerializer(
+    #     source='ingredient',
+    #     many=True,
+    # )
+    ingredients = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        # fields = '__all__'
-        fields = ('id', 'author', 'name', 'text', 'ingredients', 'tags')
+        fields = '__all__'
+        # fields = ('id', 'author', 'name', 'text', 'ingredients', 'tags')
 
     def create(self, validated_data):
         if 'tag' not in self.initial_data:
@@ -56,6 +58,14 @@ class RecipeSerializer(serializers.ModelSerializer):
             current_tag, status = Tag.objects.get_or_create(**tag)
             TagRecipe.objects.create(tag=current_tag, recipe=recipe)
         return recipe
+
+    def get_ingredients(self, obj):
+        return obj.ingredients.values(
+            'id',
+            'name',
+            'measurement_unit',
+            amount=F('recipe__amount'),
+        )
 
 
 class AuthorSerialiser(serializers.ModelSerializer):

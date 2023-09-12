@@ -97,13 +97,13 @@ class TagRecipe(models.Model):
 class IngredientRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
-        related_name='ingredientrecipe',
+        related_name='ingredient',
         on_delete=models.CASCADE,
         verbose_name='рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        related_name='ingredientrecipe',
+        related_name='recipe',
         on_delete=models.CASCADE,
         verbose_name='ингредиент'
     )

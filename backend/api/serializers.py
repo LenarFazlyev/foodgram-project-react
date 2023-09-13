@@ -1,5 +1,6 @@
 from rest_framework import serializers
-import webcolors
+from djoser.serializers import UserSerializer
+
 
 from recipes.models import (
     Recipe,
@@ -8,7 +9,20 @@ from recipes.models import (
     TagRecipe,
     Ingredient,
     IngredientRecipe,
+    User,
 )
+
+
+class CustomUserSerializer(UserSerializer):
+    class Meta:
+        model = User
+        filds = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):

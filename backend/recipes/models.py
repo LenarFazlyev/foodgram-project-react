@@ -1,7 +1,8 @@
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.db import models
+from users.models import User
 
-User = get_user_model()
+# User = get_user_model()
 
 
 class Tag(models.Model):
@@ -32,18 +33,10 @@ class Ingredient(models.Model):
         return f'{self.name} - {self.measurement_unit}'
 
 
-class Author(models.Model):
-    first_name = models.CharField(max_length=128)
-    last_name = models.CharField(max_length=128)
-
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
-
-
 # подправь picture и on_delete
 class Recipe(models.Model):
     author = models.ForeignKey(
-        Author,
+        User,
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор',

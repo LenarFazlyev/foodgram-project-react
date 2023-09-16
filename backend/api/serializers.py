@@ -4,7 +4,6 @@ from djoser.serializers import UserSerializer
 
 from recipes.models import (
     Recipe,
-    Author,
     Tag,
     TagRecipe,
     Ingredient,
@@ -13,17 +12,17 @@ from recipes.models import (
 )
 
 
-class CustomUserSerializer(serializers.ModelField):
+class CustomUserSerializer(UserSerializer):
     class Meta:
         model = User
-        filds = '__all__'
-        # filds = (
-        #     'email',
-        #     'id',
-        #     'username',
-        #     'first_name',
-        #     'last_name',
-        # )
+        # fields = '__all__'
+        fields = (
+            'email',
+            'id',
+            'username',
+            # 'first_name',
+            'last_name',
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -109,12 +108,4 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = '__all__'
-
-
-class AuthorSerialiser(serializers.ModelSerializer):
-    recipes = serializers.StringRelatedField(many=True, read_only=True)
-
-    class Meta:
-        model = Author
         fields = '__all__'

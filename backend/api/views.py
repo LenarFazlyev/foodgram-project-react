@@ -5,14 +5,12 @@ from djoser.views import UserViewSet
 from api.serializers import (
     RecipeSerializer,
     RecipeListSerializer,
-    AuthorSerialiser,
     TagSerializer,
     IngredientSerializer,
     CustomUserSerializer,
 )
 from recipes.models import (
     Recipe,
-    Author,
     Tag,
     Ingredient,
     User,
@@ -34,10 +32,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeSerializer
 
 
-class AuthorViewSet(viewsets.ModelViewSet):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerialiser
-
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
@@ -47,6 +41,4 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-
-
 

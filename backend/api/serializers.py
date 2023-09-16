@@ -13,16 +13,17 @@ from recipes.models import (
 )
 
 
-class CustomUserSerializer(UserSerializer):
+class CustomUserSerializer(serializers.ModelField):
     class Meta:
         model = User
-        filds = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-        )
+        filds = '__all__'
+        # filds = (
+        #     'email',
+        #     'id',
+        #     'username',
+        #     'first_name',
+        #     'last_name',
+        # )
 
 
 class TagSerializer(serializers.ModelSerializer):

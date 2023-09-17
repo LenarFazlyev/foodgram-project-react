@@ -14,9 +14,9 @@ class Tag(models.Model):
         unique=True,
     )
     color = ColorField(
-        format="hexa"
-        # 'Цвет в HEX',
-        # max_length=7,
+        'Цвет в HEX',
+        format="hexa",
+        max_length=7,
     )
     # color = models.CharField(
     #     'Цвет в HEX',

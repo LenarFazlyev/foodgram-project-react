@@ -1,8 +1,10 @@
 from djoser.views import UserViewSet
+from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from api.permissions import OwnerOrReadOnly
 from api.serializers import (
     RecipeSerializer,
     RecipeListSerializer,
@@ -22,6 +24,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     # class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+    permission_classes = (OwnerOrReadOnly,)
 
     # @action(detail=True, url_path='me')
     # def get_me(

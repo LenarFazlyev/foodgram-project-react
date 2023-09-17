@@ -2,15 +2,20 @@ from django.contrib import admin
 
 from .models import (
     Tag,
+    TagRecipe,
     Recipe,
     Ingredient,
     IngredientRecipe,
 )
 
-
 class TagAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'color', 'slug')
     list_editable = ('name', 'color', 'slug')
+
+
+class TagRecipeAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'tag', 'recipe')
+    list_editable = ('tag', 'recipe')
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -46,5 +51,6 @@ class IngredientRecipeAdmin(admin.ModelAdmin):
 
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(TagRecipe, TagRecipeAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(IngredientRecipe, IngredientRecipeAdmin)

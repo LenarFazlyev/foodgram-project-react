@@ -14,12 +14,10 @@ from users.models import (User, Follow)
 
 # class CustomUserSerializer(UserSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
-    # is_subscribed = serializers.Serializer(read_only=True)
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        # fields = '__all__'
         fields = (
             'email',
             'id',

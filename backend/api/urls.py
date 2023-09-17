@@ -5,17 +5,17 @@ from .views import (
     RecipeViewSet,
     TagViewSet,
     IngredientViewSet,
-    # CustomUserSerializer,
+    CustomUserViewSet,
 )
 
 router = DefaultRouter()
 router.register('recipes', RecipeViewSet, basename='recipes')
-# router.register('users', CustomUserSerializer, basename='users')
+router.register('users', CustomUserViewSet, basename='users')
 router.register('tags', TagViewSet, basename='tags')
 router.register('ingredients', IngredientViewSet, basename='ingredients')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    # path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
 ]

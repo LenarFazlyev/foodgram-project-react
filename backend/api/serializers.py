@@ -8,11 +8,15 @@ from recipes.models import (
     TagRecipe,
     Ingredient,
     IngredientRecipe,
-    User,
 )
+from users.models import (User, Follow)
 
 
-class CustomUserSerializer(UserSerializer):
+# class CustomUserSerializer(UserSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
+    # is_subscribed = serializers.Serializer(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         # fields = '__all__'
@@ -20,9 +24,17 @@ class CustomUserSerializer(UserSerializer):
             'email',
             'id',
             'username',
-            # 'first_name',
+            'first_name',
             'last_name',
+            'is_subscribed'
         )
+    
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=request.user, author=obj).exists()
+
 
 
 class TagSerializer(serializers.ModelSerializer):

@@ -1,4 +1,5 @@
-# from django.contrib.auth import get_user_model
+from colorfield.fields import ColorField
+from django.conf import settings
 from django.db import models
 from users.models import User
 
@@ -9,16 +10,21 @@ from users.models import User
 class Tag(models.Model):
     name = models.CharField(
         'Название тэга',
-        max_length=200,
+        max_length=settings.MAX_LENGTH_FIELD_200,
         unique=True,
     )
-    color = models.CharField(
-        'Цвет в HEX',
-        max_length=7,
+    color = ColorField(
+        format="hexa"
+        # 'Цвет в HEX',
+        # max_length=7,
     )
+    # color = models.CharField(
+    #     'Цвет в HEX',
+    #     max_length=7,
+    # )
     slug = models.SlugField(
         'Уникальный слаг',
-        max_length=200,
+        max_length=settings.MAX_LENGTH_FIELD_200,
     )
 
     class Meta:
@@ -30,7 +36,10 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField("Название", max_length=200)
+    name = models.CharField(
+        "Название",
+        max_length=settings.MAX_LENGTH_FIELD_200,
+    )
     measurement_unit = models.CharField(
         "Единицы измерения",
         max_length=200,

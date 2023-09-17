@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'djoser',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
+    'colorfield'
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,4 @@ REST_FRAMEWORK = {
 
 MAX_LENGTH_CUSTOMED = 150
 MAX_LENGTH_EMAIL = 254
+MAX_LENGTH_FIELD_200 = 200

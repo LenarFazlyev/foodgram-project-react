@@ -102,9 +102,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
+    author = CustomUserSerializer(
         read_only=True,
-        slug_field='first_name',
     )
     tags = TagSerializer(
         many=True,

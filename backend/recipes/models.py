@@ -18,10 +18,6 @@ class Tag(models.Model):
         format="hexa",
         max_length=7,
     )
-    # color = models.CharField(
-    #     'Цвет в HEX',
-    #     max_length=7,
-    # )
     slug = models.SlugField(
         'Уникальный слаг',
         max_length=settings.MAX_LENGTH_FIELD_200,
@@ -42,12 +38,18 @@ class Ingredient(models.Model):
     )
     measurement_unit = models.CharField(
         "Единицы измерения",
-        max_length=200,
+        max_length=settings.MAX_LENGTH_FIELD_200,
     )
 
     class Meta:
         verbose_name = 'ингридиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_name_measurement',
+                fields=['name', 'measurement_unit'],
+            )
+        ]
 
     def __str__(self):
         return f'{self.name} - {self.measurement_unit}'
@@ -112,7 +114,7 @@ class TagRecipe(models.Model):
             models.UniqueConstraint(
                 name='unique_tag', fields=['tag', 'recipe']
             ),
-        ]        
+        ]
 
     def __str__(self):
         return f'{self.tag}{self.recipe}'

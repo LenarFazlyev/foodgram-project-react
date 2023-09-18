@@ -24,7 +24,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     # class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = (OwnerOrReadOnly,)
+    # permission_classes = (OwnerOrReadOnly,)
 
     # @action(detail=True, url_path='me')
     # def get_me(

@@ -55,7 +55,6 @@ class Ingredient(models.Model):
         return f'{self.name} - {self.measurement_unit}'
 
 
-# подправь picture и on_delete
 class Recipe(models.Model):
     author = models.ForeignKey(
         User,
@@ -63,13 +62,16 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор',
     )
-    name = models.CharField('Название блюда', max_length=200)
-    # picture = models.ImageField(
-    #     'Фото рецепта',
-    #     upload_to='posts/',
-    #     null=True,
-    #     blank=True
-    # )
+    name = models.CharField(
+        'Название блюда',
+        max_length=settings.MAX_LENGTH_FIELD_200,
+    )
+    picture = models.ImageField(
+        'Фото рецепта',
+        upload_to='recipes/images',
+        null=True,
+        blank=True
+    )
     text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -99,11 +101,13 @@ class TagRecipe(models.Model):
     tag = models.ForeignKey(
         Tag,
         verbose_name='Тег',
+        related_name='recipe',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',
+        related_name='tag',
         on_delete=models.CASCADE,
     )
 
@@ -140,4 +144,4 @@ class IngredientRecipe(models.Model):
         verbose_name_plural = 'Ингредиенты/Рецепт'
 
     def __str__(self):
-        return f'{self.ingredient}{self.recipe}'
+        return f'{self.ingredient} in {self.recipe} with {self.amount}'

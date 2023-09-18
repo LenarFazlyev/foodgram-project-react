@@ -71,34 +71,34 @@ class IngredientrecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    # author = serializers.SlugRelatedField(
-    #     # read_only=True,
-    #     slug_field='first_name',
-    # )
-    tags = TagSerializer(many=True, required=False)
-    ingredients = IngredientrecipeSerializer(
-        source='ingredient',
-        many=True,
-        read_only=True,
-    )
+# class RecipeSerializer(serializers.ModelSerializer):
+#     # author = serializers.SlugRelatedField(
+#     #     # read_only=True,
+#     #     slug_field='first_name',
+#     # )
+#     tags = TagSerializer(many=True, required=False)
+#     ingredients = IngredientrecipeSerializer(
+#         source='ingredient',
+#         many=True,
+#         read_only=True,
+#     )
 
-    class Meta:
-        model = Recipe
-        fields = '__all__'
-        # fields = ('id', 'author', 'name', 'text', 'ingredients', 'tags')
+#     class Meta:
+#         model = Recipe
+#         fields = '__all__'
+#         # fields = ('id', 'author', 'name', 'text', 'ingredients', 'tags')
 
-    def create(self, validated_data):
-        if 'tags' not in self.initial_data:
-            recipe = Recipe.objects.create(**validated_data)
-            return recipe
-        tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
+#     def create(self, validated_data):
+#         if 'tags' not in self.initial_data:
+#             recipe = Recipe.objects.create(**validated_data)
+#             return recipe
+#         tags = validated_data.pop('tags')
+#         recipe = Recipe.objects.create(**validated_data)
 
-        for tag in tags:
-            current_tag, status = Tag.objects.get_or_create(**tag)
-            TagRecipe.objects.create(tag=current_tag, recipe=recipe)
-        return recipe
+#         for tag in tags:
+#             current_tag, status = Tag.objects.get_or_create(**tag)
+#             TagRecipe.objects.create(tag=current_tag, recipe=recipe)
+#         return recipe
 
 
 class RecipeListSerializer(serializers.ModelSerializer):

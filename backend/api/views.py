@@ -26,15 +26,14 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
     permission_classes = (OwnerOrReadOnly,)
 
-
     # @action(detail=True, url_path='me')
     # def get_me(
-        # self,
-        # request,
+    # self,
+    # request,
     # ):
-        # me = User.objects.get(pk=request.pk)
-        # serializer = self.get_serializer(me, many=True)
-        # return Response(serializer.data)
+    # me = User.objects.get(pk=request.pk)
+    # serializer = self.get_serializer(me, many=True)
+    # return Response(serializer.data)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -52,9 +51,12 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
+    # permission_classes =
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    # permission_classes
+    # нужно добавить фильтр для поиска по частичному вхождению в начале названия ингридиента

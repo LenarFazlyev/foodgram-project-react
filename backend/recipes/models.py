@@ -1,5 +1,6 @@
 from colorfield.fields import ColorField
 from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
 from users.models import User
 
@@ -15,7 +16,7 @@ class Tag(models.Model):
     )
     color = ColorField(
         'Цвет в HEX',
-        format="hexa",
+        validators=[RegexValidator(r'^#[0-9a-fA-F]{6}$')],
         max_length=7,
     )
     slug = models.SlugField(

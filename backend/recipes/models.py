@@ -67,10 +67,7 @@ class Recipe(models.Model):
         max_length=settings.MAX_LENGTH_FIELD_200,
     )
     picture = models.ImageField(
-        'Фото рецепта',
-        upload_to='recipes/images',
-        null=True,
-        blank=True
+        'Фото рецепта', upload_to='recipes/images', null=True, blank=True
     )
     text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(
@@ -116,7 +113,7 @@ class TagRecipe(models.Model):
         verbose_name_plural = 'тэги/рецепты'
         constraints = [
             models.UniqueConstraint(
-                name='unique_tag', fields=['tag', 'recipe']
+                name='unique_tag_recipe', fields=['tag', 'recipe']
             ),
         ]
 
@@ -145,3 +142,28 @@ class IngredientRecipe(models.Model):
 
     def __str__(self):
         return f'{self.ingredient} in {self.recipe} with {self.amount}'
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='favorites',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='favorites',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_user_favorite', fields=['user', 'recipe']
+            ),
+        ]        
+

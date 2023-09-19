@@ -125,13 +125,13 @@ class TagRecipe(models.Model):
 class IngredientRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipe,
-        related_name='ingredient',
+        related_name='ingredient_recipe',
         on_delete=models.CASCADE,
         verbose_name='рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        related_name='recipe',
+        related_name='ingredient_recipe',
         on_delete=models.CASCADE,
         verbose_name='ингредиент',
     )

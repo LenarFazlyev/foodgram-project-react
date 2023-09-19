@@ -47,7 +47,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class IngredientrecipeSerializer(serializers.ModelSerializer):
+class IngredientRecipeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         source='ingredient.id',
         read_only=True,
@@ -109,7 +109,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
         many=True,
         required=False,
     )
-    ingredients = IngredientrecipeSerializer(
+    ingredients = IngredientRecipeSerializer(
         source='ingredient',
         many=True,
         read_only=True,

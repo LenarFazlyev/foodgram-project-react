@@ -8,6 +8,8 @@ from recipes.models import (
     TagRecipe,
     Ingredient,
     IngredientRecipe,
+    Favorite,
+    ShoppingCart,
 )
 from users.models import User, Follow
 
@@ -158,7 +160,22 @@ class RecipeListSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('pub_date',)
+    
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return Favorite.objects.filter(user=request.user, recipe_id=obj).exists()
+    
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return ShoppingCart.objects.filter(user=request.user, recipe_id=obj).exists()

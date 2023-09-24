@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from api.permissions import OwnerOrReadOnly
 from api.serializers import (
-    # RecipeSerializer,
+    RecipeCreateSerializer,
     RecipeListSerializer,
     TagSerializer,
     IngredientSerializer,
@@ -38,13 +38,19 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    # serializer_class = RecipeSerializer
-    serializer_class = RecipeListSerializer
+    serializer_class = RecipeCreateSerializer
+    # serializer_class = RecipeListSerializer
 
-    # def get_serializer_class(self):
-    #     if self.action == 'list':
-    #         return RecipeListSerializer
-    #     return RecipeSerializer
+    
+    def perform_create(self, serializer):
+        # print (self.request.user.id)
+        serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            # print((self.request.user.id))
+            return RecipeListSerializer
+        return RecipeCreateSerializer
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

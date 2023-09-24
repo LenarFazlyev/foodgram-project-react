@@ -14,8 +14,7 @@ from recipes.models import (
 from users.models import User, Follow
 
 
-# class CustomUserSerializer(UserSerializer):
-class CustomUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:

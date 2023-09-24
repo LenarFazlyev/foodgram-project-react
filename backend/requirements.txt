@@ -1,6 +1,6 @@
 certifi==2023.7.22
 charset-normalizer==3.2.0
-Django==2.2.19
+Django==3.2.16
 djangorestframework==3.12.4
 idna==3.4
 python-dotenv==1.0.0
@@ -8,4 +8,3 @@ pytz==2023.3
 requests==2.31.0
 sqlparse==0.4.4
 urllib3==2.0.4
-webcolors==1.13

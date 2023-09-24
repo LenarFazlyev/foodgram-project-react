@@ -20,8 +20,8 @@ from recipes.models import (
 )
 
 
-class CustomUserViewSet(viewsets.ModelViewSet):
-    # class CustomUserViewSet(UserViewSet):
+# class CustomUserViewSet(viewsets.ModelViewSet):
+class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     # permission_classes = (OwnerOrReadOnly,)

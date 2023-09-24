@@ -7,7 +7,6 @@ class User(AbstractUser):
     username = models.CharField(
         'Уникальный юзернейм',
         max_length=settings.MAX_LENGTH_CUSTOMED,
-        unique=True,
     )
     email = models.EmailField(
         'Адрес электронной почты',
@@ -22,6 +21,7 @@ class User(AbstractUser):
         'Фамилия',
         max_length=settings.MAX_LENGTH_CUSTOMED,
     )
+    # password
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
         'username',

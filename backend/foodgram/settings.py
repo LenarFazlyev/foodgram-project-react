@@ -129,10 +129,18 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
-# SIMPLE_JWT = {
-#    'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
-#    'AUTH_HEADER_TYPES': ('Bearer',),
-# } 
+DJOSER = {
+    'SERIALIZERS': {
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+    },
+
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+    },
+    'HIDE_USERS': False,
+}
 
 MAX_LENGTH_CUSTOMED = 150
 MAX_LENGTH_EMAIL = 254

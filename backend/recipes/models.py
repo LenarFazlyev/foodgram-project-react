@@ -17,7 +17,7 @@ class Tag(models.Model):
     color = ColorField(
         'Цвет в HEX',
         validators=[RegexValidator(r'^#[0-9a-fA-F]{6}$')],
-        max_length=7,
+        format='hex'
     )
     slug = models.SlugField(
         'Уникальный слаг',

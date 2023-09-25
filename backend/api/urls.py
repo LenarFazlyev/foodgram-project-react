@@ -6,10 +6,16 @@ from .views import (
     TagViewSet,
     IngredientViewSet,
     CustomUserViewSet,
+    FavoriteViewSet,
 )
 
 router = DefaultRouter()
 router.register('recipes', RecipeViewSet, basename='recipes')
+router.register(
+    'recipes/(?P<id>[^/.]+)/favorite',
+    FavoriteViewSet,
+    basename='favorite'
+)
 router.register('users', CustomUserViewSet, basename='users')
 router.register('tags', TagViewSet, basename='tags')
 router.register('ingredients', IngredientViewSet, basename='ingredients')

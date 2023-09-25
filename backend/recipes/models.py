@@ -5,9 +5,6 @@ from django.db import models
 from users.models import User
 
 
-# User = get_user_model()
-
-
 class Tag(models.Model):
     name = models.CharField(
         'Название тэга',
@@ -68,7 +65,7 @@ class Recipe(models.Model):
         max_length=settings.MAX_LENGTH_FIELD_200,
     )
     image = models.ImageField(
-        'Фото рецепта', upload_to='recipes/images', null=True, blank=True
+        'Фото рецепта', upload_to='recipes/images',
     )
     text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(

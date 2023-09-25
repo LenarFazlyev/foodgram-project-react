@@ -21,5 +21,5 @@ class OwnerOrReadOnly(permissions.BasePermission):
         )
         return (
             request.method in permissions.SAFE_METHODS
-            or obj == request.user # нужно проверить что приходит на obj
+            or obj.author == request.user # нужно проверить что приходит на obj
         )

@@ -1,3 +1,4 @@
+from drf_extra_fields.fields import Base64ImageField
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
@@ -83,6 +84,7 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
         )
 
 
+
 class RecipeCreateSerializer(serializers.ModelSerializer):
     # author = serializers.PrimaryKeyRelatedField(read_only=True)
     ingredients = IngredientRecipeCreateSerializer(
@@ -90,6 +92,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         many=True,
     )
     tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    image = Base64ImageField()
 
 
     class Meta:
@@ -99,10 +102,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'tags',
             'author',
             'ingredients',
-            # 'is_favorite',
-            # 'is_in_shopping_cart'
             'name',
-            # 'image',
+            'image',
             'text',
             'cooking_time',
         )
@@ -142,11 +143,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return recipe
     
     def to_representation(self, instance):
-        serializer = RecipeListSerializer(instance, context=self.context)
+        serializer = RecipeReadSerializer(instance, context=self.context)
         return serializer.data
 
 
-class RecipeListSerializer(serializers.ModelSerializer):
+class RecipeReadSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(
         read_only=True,
     )
@@ -161,6 +162,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    # image = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -178,3 +180,8 @@ class RecipeListSerializer(serializers.ModelSerializer):
         if request is None or request.user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(user=request.user, recipe_id=obj).exists()
+    
+    # def get_image(self, obj):
+    #     if obj.image:
+    #         return obj.image.url
+    #     return

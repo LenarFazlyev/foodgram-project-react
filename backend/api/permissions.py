@@ -1,9 +1,8 @@
 from rest_framework import permissions
 
-# MESSAGE: dict = {
-#     'User': 'чужих данных запрещено',
-#     # 'Comment': 'коммента',
-# }
+MESSAGE: dict = {
+    'Recipe': 'чужих рецептов',
+}
 
 
 class OwnerOrReadOnly(permissions.BasePermission):
@@ -16,10 +15,10 @@ class OwnerOrReadOnly(permissions.BasePermission):
         )
 
     def has_object_permission(self, request, view, obj):
-        # self.message = self.message.format(
-        #     viewset_class=MESSAGE[type(obj).__name__]
-        # )
+        self.message = self.message.format(
+            viewset_class=MESSAGE[type(obj).__name__]
+        )
         return (
             request.method in permissions.SAFE_METHODS
-            or obj.author == request.user # нужно проверить что приходит на obj
+            or obj.author == request.user
         )

@@ -37,7 +37,6 @@ from users.models import (
 )
 
 
-
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
@@ -45,7 +44,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=('post', 'delete'),
-        permission_classes=(permissions.IsAuthenticated,)
+        permission_classes=(permissions.IsAuthenticated,),
     )
     def subscribe(self, request, **kwargs):
         user = request.user
@@ -54,34 +53,23 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'POST':
             serializer = FollowSerializer(
-                author,
-                data=request.data,
-                context={"request": request}
+                author, data=request.data, context={"request": request}
             )
             serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        subscription = get_object_or_404(
-            Follow,
-            user=user,
-            author=author
-        )
+        subscription = get_object_or_404(Follow, user=user, author=author)
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        detail=False,
-        permission_classes=(permissions.IsAuthenticated,)
-    )
+    @action(detail=False, permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request):
         user = request.user
         queryset = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
-            pages,
-            many=True,
-            context={'request': request}
+            pages, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
@@ -99,33 +87,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.request.method in permissions.SAFE_METHODS:
             return RecipeReadSerializer
         return RecipeCreateSerializer
-    
-    @action(
-        detail=False,
-        permission_classes=(permissions.IsAuthenticated,)
-    )
+
+    @action(detail=False, permission_classes=(permissions.IsAuthenticated,))
     def download_shopping_cart(self, request):
         user = request.user
         if not user.shopping_cart.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        ingredients = IngredientRecipe.objects.filter(
-            recipe__shopping_cart__user=request.user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(cart_amount=Sum('amount'))
+        ingredients = (
+            IngredientRecipe.objects.filter(
+                recipe__shopping_cart__user=request.user
+            )
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(cart_amount=Sum('amount'))
+        )
 
         today = datetime.today()
-        shopping_list = (
-            f'Ваш список покупок на: {today:%Y-%m-%d}\n\n'
+        shopping_list = f'Ваш список покупок на: {today:%Y-%m-%d}\n\n'
+        shopping_list += '\n'.join(
+            [
+                f'- {ingredient["ingredient__name"]} '
+                f'({ingredient["ingredient__measurement_unit"]})'
+                f' - {ingredient["cart_amount"]}'
+                for ingredient in ingredients
+            ]
         )
-        shopping_list += '\n'.join([
-            f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
-            f' - {ingredient["cart_amount"]}'
-            for ingredient in ingredients
-        ])
 
         filename = f'{user.username}_shopping_list.txt'
         response = HttpResponse(shopping_list, content_type='text/plain')
@@ -167,8 +153,11 @@ class FavoriteViewSet(DestroyModelMixin, CreateModelMixin, GenericViewSet):
         )
         if obj:
             obj.delete()
-            return Response('Объект удален',status=status.HTTP_204_NO_CONTENT)
-        return Response('Объект был уже удален либо не существует',status=status.HTTP_400_BAD_REQUEST)
+            return Response('Объект удален', status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Объект был уже удален либо не существует',
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class ShoppingCartViewSet(DestroyModelMixin, CreateModelMixin, GenericViewSet):
@@ -186,12 +175,9 @@ class ShoppingCartViewSet(DestroyModelMixin, CreateModelMixin, GenericViewSet):
 
     def delete(self, request, *args, **kwargs):
         obj = ShoppingCart.objects.filter(
-            user_id=request.user.id,
-            recipe_id=self.kwargs.get('id')
+            user_id=request.user.id, recipe_id=self.kwargs.get('id')
         )
         if obj:
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-

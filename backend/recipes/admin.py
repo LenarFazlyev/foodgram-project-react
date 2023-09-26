@@ -9,7 +9,6 @@ from .models import (
 )
 
 
-
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'color', 'slug')

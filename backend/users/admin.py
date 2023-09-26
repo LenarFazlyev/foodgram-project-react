@@ -32,5 +32,6 @@ class UserAdmin(admin.ModelAdmin):
 class FollowAdmin(admin.ModelAdmin):
     pass
 
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Follow, FollowAdmin)

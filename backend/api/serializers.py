@@ -34,7 +34,7 @@ class CustomUserSerializer(UserSerializer):
         if request is None or request.user.is_anonymous:
             return False
         return Follow.objects.filter(user=request.user, author=obj).exists()
-    
+
 
 class FollowSerializer(CustomUserSerializer):
     recipes_count = serializers.SerializerMethodField()
@@ -123,7 +123,6 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    # author = serializers.PrimaryKeyRelatedField(read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = IngredientRecipeCreateSerializer(
         source='ingredientrecipes',
@@ -182,7 +181,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         serializer = RecipeReadSerializer(instance, context=self.context)
         return serializer.data
-    
+
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredientrecipes')
@@ -198,7 +197,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         instance.save()
         return instance
-    
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -220,7 +218,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        # fields = '__all__'
         fields = (
             'id',
             'tags',
@@ -233,9 +230,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-        # exclude = ('pub_date',)
 
-  
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
         return (user.is_authenticated

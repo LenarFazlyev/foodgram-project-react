@@ -13,14 +13,6 @@ class User(AbstractUser):
         max_length=settings.MAX_LENGTH_EMAIL,
         unique=True,
     )
-    first_name = models.CharField(
-        'Имя',
-        max_length=settings.MAX_LENGTH_CUSTOMED,
-    )
-    last_name = models.CharField(
-        'Фамилия',
-        max_length=settings.MAX_LENGTH_CUSTOMED,
-    )
     password = models.CharField(
         'Пароль',
         max_length=settings.MAX_LENGTH_CUSTOMED,

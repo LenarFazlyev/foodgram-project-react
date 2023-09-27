@@ -14,12 +14,6 @@ class CustomedUserAdmin(UserAdmin):
         'get_recipe_count',
         'get_follower_count',
     )
-    # fields = (
-    #     'email',
-    #     'username',
-    #     'first_name',
-    #     'last_name',
-    # )
     fieldsets = (
         (None, {'fields': ('email', 'username', 'first_name', 'last_name')}),
     )
@@ -27,6 +21,7 @@ class CustomedUserAdmin(UserAdmin):
         'email',
         'first_name',
     )
+
     def get_recipe_count(self, obj):
         return obj.recipes.count()
     get_recipe_count.short_description = 'Количество рецептов'
@@ -34,7 +29,6 @@ class CustomedUserAdmin(UserAdmin):
     def get_follower_count(self, obj):
         return obj.follower.count()
     get_follower_count.short_description = 'Количество подписчиков'
-
 
 
 @admin.register(Follow)

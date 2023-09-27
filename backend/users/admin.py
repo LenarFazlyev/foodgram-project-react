@@ -1,37 +1,42 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
 from users.models import User, Follow
 
 
-class UserAdmin(admin.ModelAdmin):
+@admin.register(User)
+class CustomedUserAdmin(UserAdmin):
     list_display = (
         'email',
         'username',
         'first_name',
         'last_name',
-        'password',
+        'get_recipe_count',
+        'get_follower_count',
     )
-    fields = (
-        'email',
-        'username',
-        'first_name',
-        'last_name',
-        'password',
+    # fields = (
+    #     'email',
+    #     'username',
+    #     'first_name',
+    #     'last_name',
+    # )
+    fieldsets = (
+        (None, {'fields': ('email', 'username', 'first_name', 'last_name')}),
     )
     list_filter = (
         'email',
         'first_name',
     )
-    list_editable = (
-        'username',
-        'first_name',
-        'last_name',
-    )
+    def get_recipe_count(self, obj):
+        return obj.recipes.count()
+    get_recipe_count.short_description = 'Количество рецептов'
+
+    def get_follower_count(self, obj):
+        return obj.follower.count()
+    get_follower_count.short_description = 'Количество подписчиков'
 
 
+
+@admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
     pass
-
-
-admin.site.register(User, UserAdmin)
-admin.site.register(Follow, FollowAdmin)

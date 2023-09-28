@@ -1,8 +1,8 @@
 from colorfield.fields import ColorField
-from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
+from foodgram import constants
 from users.models import User
 
 MINTIME = MINQUANTITY = 1
@@ -13,13 +13,13 @@ MAXQUANTITY = 10000
 class Tag(models.Model):
     name = models.CharField(
         'Название тэга',
-        max_length=settings.MAX_LENGTH_FIELD_200,
+        max_length=constants.MAX_LENGTH_FIELD,
         unique=True,
     )
     color = ColorField('Цвет в HEX', format='hex')
     slug = models.SlugField(
         'Уникальный слаг',
-        max_length=settings.MAX_LENGTH_FIELD_200,
+        max_length=constants.MAX_LENGTH_FIELD,
     )
 
     class Meta:
@@ -33,11 +33,11 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=settings.MAX_LENGTH_FIELD_200,
+        max_length=constants.MAX_LENGTH_FIELD,
     )
     measurement_unit = models.CharField(
         'Единицы измерения',
-        max_length=settings.MAX_LENGTH_FIELD_200,
+        max_length=constants.MAX_LENGTH_FIELD,
     )
 
     class Meta:
@@ -63,7 +63,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         'Название блюда',
-        max_length=settings.MAX_LENGTH_FIELD_200,
+        max_length=constants.MAX_LENGTH_FIELD,
     )
     image = models.ImageField(
         'Фото рецепта',

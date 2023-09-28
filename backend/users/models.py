@@ -1,21 +1,22 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from foodgram import constants
 
 
 class User(AbstractUser):
     username = models.CharField(
         'Уникальный юзернейм',
-        max_length=settings.MAX_LENGTH_CUSTOMED,
+        max_length=constants.MAX_LENGTH,
     )
     email = models.EmailField(
         'Адрес электронной почты',
-        max_length=settings.MAX_LENGTH_EMAIL,
+        max_length=constants.MAX_LENGTH_EMAIL,
         unique=True,
     )
     password = models.CharField(
         'Пароль',
-        max_length=settings.MAX_LENGTH_CUSTOMED,
+        max_length=constants.MAX_LENGTH,
     )
 
     USERNAME_FIELD = 'email'

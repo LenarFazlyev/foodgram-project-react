@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
@@ -54,7 +54,7 @@ class CustomUserViewSet(UserViewSet):
 
         if request.method == 'POST':
             serializer = FollowSerializer(
-                author, data=request.data, context={"request": request}
+                author, data=request.data, context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
@@ -100,7 +100,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe__shoppingcarts__user=request.user
             )
             .values('ingredient__name', 'ingredient__measurement_unit')
-            .annotate(cart_amount=Sum('amount'))
+            .annotate(cart_amount=Sum('amount')).order_by('ingredient__name')
         )
 
         today = datetime.today()
@@ -115,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
         filename = f'{user.username}_shopping_list.txt'
-        response = HttpResponse(shopping_list, content_type='text/plain')
+        response = FileResponse(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
 
         return response

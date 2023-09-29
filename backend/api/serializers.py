@@ -304,7 +304,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
                 user_id=data['user'],
                 recipe_id=data['recipe']):
             raise serializers.ValidationError(
-                {'shopping_cart': 'Рецепт уже в вашей корзине'})
+                {'shoppingcarts': 'Рецепт уже в вашей корзине'})
         return data
 
     def create(self, validated_data):

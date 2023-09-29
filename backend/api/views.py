@@ -18,7 +18,7 @@ from api.serializers import (
     RecipeReadSerializer,
     TagSerializer,
     IngredientSerializer,
-    CustomUserSerializer,
+    UserSerializer,
     FavoriteSerializer,
     ShoppingCartSerializer,
     FollowSerializer,
@@ -40,7 +40,7 @@ from users.models import (
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
 
     @action(
         detail=True,

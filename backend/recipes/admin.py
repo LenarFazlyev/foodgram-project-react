@@ -8,6 +8,7 @@ from .models import (
     Recipe,
     Ingredient,
     IngredientRecipe,
+    Favorite,
 )
 
 
@@ -94,6 +95,9 @@ class IngredientRecipeAdmin(admin.ModelAdmin):
         'amount',
     )
 
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.unregister(
     Group

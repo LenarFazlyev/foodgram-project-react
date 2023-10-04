@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, FileResponse
@@ -22,6 +20,8 @@ from api.serializers import (
     FavoriteSerializer,
     ShoppingCartSerializer,
     FollowSerializer,
+    FollowPostSerializer,
+    RecipeShortSerializer,
 )
 from recipes.models import (
     Recipe,
@@ -37,32 +37,43 @@ from users.models import (
     Follow,
 )
 
+from api.utils import create_shopping_list
+
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def get_permissions(self):
+        if self.action == 'me':
+            return (permissions.IsAuthenticated(),)
+        return super().get_permissions()
 
     @action(
         detail=True,
-        methods=('post', 'delete'),
+        methods=('post',),
         permission_classes=(permissions.IsAuthenticated,),
     )
-    def subscribe(self, request, **kwargs):
-        user = request.user
-        author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
-
-        if request.method == 'POST':
-            serializer = FollowSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
+    def subscribe(self, request, id):
+        data = {'user': request.user.id, 'author': id}
+        context = {"request": request}
+        serializer = FollowPostSerializer(data=data, context=context)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        subscription = get_object_or_404(Follow, user=user, author=author)
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, **kwargs):
+        subscription = request.user.follower.filter(
+            author=self.kwargs.get('id')
+        )
+        if subscription:
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Такой подписки нет', status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(detail=False, permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request):
@@ -76,18 +87,66 @@ class CustomUserViewSet(UserViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.select_related('author').prefetch_related(
+        'tags', 'ingredients'
+    )
     permission_classes = (OwnerOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.request.method in permissions.SAFE_METHODS:
             return RecipeReadSerializer
         return RecipeCreateSerializer
+
+    @action(
+        detail=True,
+        methods=('post',),
+        permission_classes=(permissions.IsAuthenticated,),
+    )
+    def favorite(self, request, pk):
+        data = {'user': request.user.id, 'recipe': pk}
+        context = {"request": request}
+        serializer = FavoriteSerializer(data=data, context=context)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        favorite = request.user.favorites.filter(recipe=pk)
+        if favorite:
+            favorite.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Такого рецепта в избранном нет',
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    @action(
+        detail=True,
+        methods=('post',),
+        permission_classes=(permissions.IsAuthenticated,),
+    )
+    def shopping_cart(self, request, pk):
+        data = {'user': request.user.id, 'recipe': pk}
+        context = {"request": request}
+        serializer = ShoppingCartSerializer(data=data, context=context)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, **kwargs):
+        shopping_cart = request.user.shoppingcarts.filter(
+            recipe=self.kwargs.get('pk')
+        )
+        if shopping_cart:
+            shopping_cart.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Такого рецепта в корзине нет', status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(detail=False, permission_classes=(permissions.IsAuthenticated,))
     def download_shopping_cart(self, request):
@@ -100,24 +159,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe__shoppingcarts__user=request.user
             )
             .values('ingredient__name', 'ingredient__measurement_unit')
-            .annotate(cart_amount=Sum('amount')).order_by('ingredient__name')
+            .annotate(cart_amount=Sum('amount'))
+            .order_by('ingredient__name')
         )
-
-        today = datetime.today()
-        shopping_list = f'Ваш список покупок на: {today:%Y-%m-%d}\n\n'
-        shopping_list += '\n'.join(
-            [
-                f'- {ingredient["ingredient__name"]} '
-                f'({ingredient["ingredient__measurement_unit"]})'
-                f' - {ingredient["cart_amount"]}'
-                for ingredient in ingredients
-            ]
-        )
-
-        filename = f'{user.username}_shopping_list.txt'
+        shopping_list = create_shopping_list(ingredients)
         response = FileResponse(shopping_list, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-
         return response
 
 
@@ -133,52 +179,3 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
-
-
-class FavoriteViewSet(DestroyModelMixin, CreateModelMixin, GenericViewSet):
-    queryset = Favorite.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = FavoriteSerializer
-
-    def create(self, request, *args, **kwargs):
-        data = {'user': request.user.id, 'recipe': self.kwargs.get('id')}
-        serializer = FavoriteSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        obj = Favorite.objects.filter(
-            user_id=request.user.id, recipe_id=self.kwargs.get('id')
-        )
-        if obj:
-            obj.delete()
-            return Response('Объект удален', status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            'Объект был уже удален либо не существует',
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-
-class ShoppingCartViewSet(DestroyModelMixin, CreateModelMixin, GenericViewSet):
-    queryset = ShoppingCart.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = ShoppingCartSerializer
-
-    def create(self, request, *args, **kwargs):
-        data = {'user': request.user.id, 'recipe': self.kwargs.get('id')}
-        serializer = ShoppingCartSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        obj = ShoppingCart.objects.filter(
-            user_id=request.user.id, recipe_id=self.kwargs.get('id')
-        )
-        if obj:
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)

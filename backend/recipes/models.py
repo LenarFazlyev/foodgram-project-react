@@ -5,10 +5,6 @@ from django.db import models
 from foodgram import constants
 from users.models import User
 
-MINTIME = MINQUANTITY = 1
-MAXTIME = 600
-MAXQUANTITY = 10000
-
 
 class Tag(models.Model):
     name = models.CharField(
@@ -86,13 +82,13 @@ class Recipe(models.Model):
         'Время приготовления в минутах',
         validators=[
             MinValueValidator(
-                MINTIME,
+                constants.MINTIME,
                 message='Время приготовления должно быть больше 0',
             ),
             MaxValueValidator(
-                MAXTIME,
+                constants.MAXTIME,
                 message=(
-                    f'Время приготовления не может превышать {MAXTIME} минут'
+                    f'Время приготовления не может превышать {constants.MAXTIME} минут'
                 ),
             ),
         ],
@@ -152,12 +148,12 @@ class IngredientRecipe(models.Model):
         'Количество',
         validators=[
             MinValueValidator(
-                MINQUANTITY,
+                constants.MINQUANTITY,
                 message='Минимальное количество должно быть больше 0 г',
             ),
             MaxValueValidator(
-                MAXQUANTITY,
-                message=f'Максимальный вес не больше {MAXQUANTITY} г',
+                constants.MAXQUANTITY,
+                message=f'Максимальный вес не больше {constants.MAXQUANTITY} г',
             ),
         ],
     )
@@ -176,13 +172,11 @@ class AbstractUserRelation(models.Model):
         'users.User',
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        related_name='%(class)ss',
     )
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        related_name='%(class)ss',
     )
 
     class Meta:
@@ -199,57 +193,14 @@ class Favorite(AbstractUserRelation):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        default_related_name = 'favorites'
+        
+    def __str__(self):
+        return f'{self.id}'
 
 
 class ShoppingCart(AbstractUserRelation):
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
-
-
-# class Favorite(models.Model):
-#     user = models.ForeignKey(
-#         User,
-#         related_name='favorites',
-#         on_delete=models.CASCADE,
-#         verbose_name='Пользователь',
-#     )
-#     recipe = models.ForeignKey(
-#         Recipe,
-#         related_name='favorites',
-#         on_delete=models.CASCADE,
-#         verbose_name='Рецепт',
-#     )
-
-#     class Meta:
-#         verbose_name = 'Избранное'
-#         verbose_name_plural = 'Избранное'
-#         constraints = [
-#             models.UniqueConstraint(
-#                 name='unique_user_favorite', fields=['user', 'recipe']
-#             ),
-#         ]
-
-
-# class ShoppingCart(models.Model):
-#     user = models.ForeignKey(
-#         User,
-#         related_name='shopping_cart',
-#         on_delete=models.CASCADE,
-#         verbose_name='Пользователь',
-#     )
-#     recipe = models.ForeignKey(
-#         Recipe,
-#         related_name='shopping_cart',
-#         on_delete=models.CASCADE,
-#         verbose_name='Рецепт',
-#     )
-
-#     class Meta:
-#         verbose_name = 'Корзина'
-#         verbose_name_plural = 'Корзина'
-#         constraints = [
-#             models.UniqueConstraint(
-#                 name='unique_user_shopping_cart', fields=['user', 'recipe']
-#             ),
-#         ]
+        default_related_name = 'shoppingcarts'

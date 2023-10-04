@@ -88,7 +88,8 @@ class Recipe(models.Model):
             MaxValueValidator(
                 constants.MAXTIME,
                 message=(
-                    f'Время приготовления не может превышать {constants.MAXTIME} минут'
+                    'Время приготовления не может превышать',
+                    'f{constants.MAXTIME} минут',
                 ),
             ),
         ],
@@ -153,7 +154,10 @@ class IngredientRecipe(models.Model):
             ),
             MaxValueValidator(
                 constants.MAXQUANTITY,
-                message=f'Максимальный вес не больше {constants.MAXQUANTITY} г',
+                message=(
+                    'Максимальный вес не больше',
+                    f'{constants.MAXQUANTITY} г',
+                ),
             ),
         ],
     )
@@ -194,7 +198,7 @@ class Favorite(AbstractUserRelation):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         default_related_name = 'favorites'
-        
+
     def __str__(self):
         return f'{self.id}'
 

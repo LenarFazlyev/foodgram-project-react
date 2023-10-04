@@ -1,13 +1,10 @@
 from django.db.models import Sum
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, FileResponse
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.mixins import DestroyModelMixin, CreateModelMixin
 
 from api.filters import RecipeFilter, IngredientFilter
 from api.permissions import OwnerOrReadOnly
@@ -21,21 +18,15 @@ from api.serializers import (
     ShoppingCartSerializer,
     FollowSerializer,
     FollowPostSerializer,
-    RecipeShortSerializer,
 )
 from recipes.models import (
     Recipe,
     Tag,
     Ingredient,
-    Favorite,
-    ShoppingCart,
     IngredientRecipe,
 )
 
-from users.models import (
-    User,
-    Follow,
-)
+from users.models import User
 
 from api.utils import create_shopping_list
 
@@ -99,18 +90,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeReadSerializer
         return RecipeCreateSerializer
 
+    @staticmethod
+    def write_to_fav_or_subsc(serializer, pk, request):
+        data = {'user': request.user.id, 'recipe': pk}
+        context = {"request": request}
+        serializer = serializer(data=data, context=context)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     @action(
         detail=True,
         methods=('post',),
         permission_classes=(permissions.IsAuthenticated,),
     )
     def favorite(self, request, pk):
-        data = {'user': request.user.id, 'recipe': pk}
-        context = {"request": request}
-        serializer = FavoriteSerializer(data=data, context=context)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return self.write_to_fav_or_subsc(FavoriteSerializer, pk, request)
+
+    @action(
+        detail=True,
+        methods=('post',),
+        permission_classes=(permissions.IsAuthenticated,),
+    )
+    def shopping_cart(self, request, pk):
+        return self.write_to_fav_or_subsc(ShoppingCartSerializer, pk, request)
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
@@ -122,19 +125,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'Такого рецепта в избранном нет',
             status=status.HTTP_400_BAD_REQUEST,
         )
-
-    @action(
-        detail=True,
-        methods=('post',),
-        permission_classes=(permissions.IsAuthenticated,),
-    )
-    def shopping_cart(self, request, pk):
-        data = {'user': request.user.id, 'recipe': pk}
-        context = {"request": request}
-        serializer = ShoppingCartSerializer(data=data, context=context)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, **kwargs):

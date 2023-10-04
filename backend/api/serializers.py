@@ -1,6 +1,5 @@
 from drf_extra_fields.fields import Base64ImageField
 from django.core.validators import MinValueValidator, MaxValueValidator
-from djoser.serializers import UserSerializer
 from rest_framework import serializers, exceptions, status
 
 
@@ -82,7 +81,7 @@ class FollowSerializer(UserSerializer):
         if limit:
             try:
                 recipes = recipes[: int(limit)]
-            except:
+            except ValueError:
                 raise exceptions.ValidationError(
                     'Параметр лимит должен быть цифрой'
                 )
@@ -133,7 +132,10 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
             ),
             MaxValueValidator(
                 constants.MAXQUANTITY,
-                message=f'Максимальный вес не больше {constants.MAXQUANTITY} г',
+                message=(
+                    'Максимальный вес не больше',
+                    'f{constants.MAXQUANTITY} г',
+                ),
             ),
         ]
     )
@@ -165,7 +167,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             MaxValueValidator(
                 constants.MAXTIME,
                 message=(
-                    f'Время приготовления не может превышать {constants.MAXTIME} минут'
+                    'Время приготовления не может превышать',
+                    f'{constants.MAXTIME} минут',
                 ),
             ),
         ]
@@ -268,7 +271,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'author',
             'ingredients',
             'is_favorited',
-            'is_in_shopping_cart', 
+            'is_in_shopping_cart',
             'name',
             'image',
             'text',

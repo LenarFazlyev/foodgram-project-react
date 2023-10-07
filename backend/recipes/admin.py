@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
-from .models import (
+from foodgram import constants
+from recipes.models import (
     Tag,
     TagRecipe,
     Recipe,
@@ -26,10 +27,12 @@ class TagRecipeAdmin(admin.ModelAdmin):
 
 class IngredientInLine(admin.TabularInline):
     model = Recipe.ingredients.through
+    min_num = constants.MAXQUANTITY
 
 
 class TagInLine(admin.TabularInline):
     model = Recipe.tags.through
+    min_num = constants.MAXQUANTITY
 
 
 @admin.register(Recipe)
@@ -38,6 +41,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'name',
         'author',
         'display_ingredients',
+        'display_tags',
         'favorite_count',
         'display_image',
     )
@@ -61,6 +65,7 @@ class RecipeAdmin(admin.ModelAdmin):
         TagInLine,
     )
 
+    @admin.display(description='Ингедиенты')
     def display_ingredients(self, obj):
         return mark_safe(
             ', '.join(
@@ -68,17 +73,21 @@ class RecipeAdmin(admin.ModelAdmin):
             )
         )
 
-    display_ingredients.short_description = 'Ингридиенты'
+    @admin.display(description='Тэги')
+    def display_tags(self, obj):
+        return mark_safe(
+            ', '.join(
+                [tag.name for tag in obj.tags.all()]
+            )
+        )
 
+    @admin.display(description='Кол-во в Избранном')
     def favorite_count(self, obj):
         return obj.favorites.count()
 
-    favorite_count.short_description = 'Кол-во в Избранном'
-
+    @admin.display(description='Изображение')
     def display_image(self, obj):
         return mark_safe(f'<img src={obj.image.url} width="80" height="60">')
-
-    display_image.short_description = 'Изображение'
 
 
 @admin.register(Ingredient)
@@ -103,4 +112,4 @@ class FavoriteAdmin(admin.ModelAdmin):
 
 admin.site.unregister(
     Group
-)  # Здесь не сразу догадался использовать unregister
+)

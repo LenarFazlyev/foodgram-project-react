@@ -1,11 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as ModelUserAdmin
 
 from users.models import User, Follow
 
 
 @admin.register(User)
-class CustomedUserAdmin(UserAdmin):
+class UserAdmin(ModelUserAdmin):
     list_display = (
         'email',
         'username',
@@ -22,13 +22,13 @@ class CustomedUserAdmin(UserAdmin):
         'first_name',
     )
 
+    @admin.display(description='Количество рецептов')
     def get_recipe_count(self, obj):
         return obj.recipes.count()
-    get_recipe_count.short_description = 'Количество рецептов'
 
+    @admin.display(description='Количество подписчиков')
     def get_follower_count(self, obj):
         return obj.follower.count()
-    get_follower_count.short_description = 'Количество подписчиков'
 
 
 @admin.register(Follow)

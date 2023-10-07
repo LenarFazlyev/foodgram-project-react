@@ -37,7 +37,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        verbose_name = 'ингридиент'
+        verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
         constraints = [
             models.UniqueConstraint(
@@ -89,7 +89,7 @@ class Recipe(models.Model):
                 constants.MAXTIME,
                 message=(
                     'Время приготовления не может превышать',
-                    'f{constants.MAXTIME} минут',
+                    f'{constants.MAXTIME} минут',
                 ),
             ),
         ],
@@ -170,8 +170,7 @@ class IngredientRecipe(models.Model):
         return f'{self.ingredient} in {self.recipe} with {self.amount}'
 
 
-# Делали подобную на совместном проекте
-class AbstractUserRelation(models.Model):
+class AbstractUserRecipe(models.Model):
     user = models.ForeignKey(
         'users.User',
         on_delete=models.CASCADE,
@@ -182,29 +181,32 @@ class AbstractUserRelation(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
     )
+    # здесь можно добавить, а у Favorite и ShoppingCart убрать
+    # но не знаю как делают на практике
+    # related_name = '%(class)ss',
 
     class Meta:
         abstract = True
         constraints = [
             models.UniqueConstraint(
-                name='unique_user_relation',
+                name='%(class)s_unique_user_recipe',
                 fields=['user', 'recipe'],
             ),
         ]
 
+    def __str__(self):
+        return f'Рецепт добавлен в {self.__class__.__name__}'
 
-class Favorite(AbstractUserRelation):
-    class Meta:
+
+class Favorite(AbstractUserRecipe):
+    class Meta(AbstractUserRecipe.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         default_related_name = 'favorites'
 
-    def __str__(self):
-        return f'{self.id}'
 
-
-class ShoppingCart(AbstractUserRelation):
-    class Meta:
+class ShoppingCart(AbstractUserRecipe):
+    class Meta(AbstractUserRecipe.Meta):
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзина'
         default_related_name = 'shoppingcarts'

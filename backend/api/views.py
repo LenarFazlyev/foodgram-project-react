@@ -19,16 +19,16 @@ from api.serializers import (
     FollowSerializer,
     FollowPostSerializer,
 )
+from api.shopping_list import create_shopping_list
 from recipes.models import (
+    Favorite,
     Recipe,
+    ShoppingCart,
     Tag,
     Ingredient,
     IngredientRecipe,
 )
-
 from users.models import User
-
-from api.utils import create_shopping_list
 
 
 class CustomUserViewSet(UserViewSet):
@@ -48,11 +48,12 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, id):
         data = {'user': request.user.id, 'author': id}
-        context = {"request": request}
+        context = {'request': request}
         serializer = FollowPostSerializer(data=data, context=context)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, **kwargs):
@@ -91,13 +92,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeCreateSerializer
 
     @staticmethod
-    def write_to_fav_or_subsc(serializer, pk, request):
+    def write_to_fav_or_shopcart(serializer, pk, request):
         data = {'user': request.user.id, 'recipe': pk}
-        context = {"request": request}
+        context = {'request': request}
         serializer = serializer(data=data, context=context)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(
         detail=True,
@@ -105,7 +106,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated,),
     )
     def favorite(self, request, pk):
-        return self.write_to_fav_or_subsc(FavoriteSerializer, pk, request)
+        return self.write_to_fav_or_shopcart(FavoriteSerializer, pk, request)
 
     @action(
         detail=True,
@@ -113,29 +114,35 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(permissions.IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
-        return self.write_to_fav_or_subsc(ShoppingCartSerializer, pk, request)
+        return self.write_to_fav_or_shopcart(
+            ShoppingCartSerializer, pk, request
+        )
+
+    @staticmethod
+    def delete_fav_or_shopcart(model, request, pk, error_message):
+        item = model.objects.filter(recipe=pk, user=request.user)
+        print(item)
+        if item:
+            item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
-        favorite = request.user.favorites.filter(recipe=pk)
-        if favorite:
-            favorite.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            'Такого рецепта в избранном нет',
-            status=status.HTTP_400_BAD_REQUEST,
+        return self.delete_fav_or_shopcart(
+            request=request,
+            pk=pk,
+            model=Favorite,
+            error_message='Такого рецепта в избранном нет',
         )
 
     @shopping_cart.mapping.delete
-    def delete_shopping_cart(self, request, **kwargs):
-        shopping_cart = request.user.shoppingcarts.filter(
-            recipe=self.kwargs.get('pk')
-        )
-        if shopping_cart:
-            shopping_cart.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            'Такого рецепта в корзине нет', status=status.HTTP_400_BAD_REQUEST
+    def delete_shopping_cart(self, request, pk):
+        return self.delete_fav_or_shopcart(
+            request=request,
+            pk=pk,
+            model=ShoppingCart,
+            error_message='Такого рецепта в корзине нет',
         )
 
     @action(detail=False, permission_classes=(permissions.IsAuthenticated,))
@@ -153,8 +160,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .order_by('ingredient__name')
         )
         shopping_list = create_shopping_list(ingredients)
-        response = FileResponse(shopping_list, content_type='text/plain')
-        return response
+        return FileResponse(shopping_list, content_type='text/plain')
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

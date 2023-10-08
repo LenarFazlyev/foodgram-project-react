@@ -117,7 +117,12 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
 class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(
-        min_value=constants.MINQUANTITY, max_value=constants.MAXQUANTITY
+        min_value=constants.MINQUANTITY,
+        max_value=constants.MAXQUANTITY,
+        error_messages={
+            'min_value': 'Минимальный вес ингредиента должен быть больше или равен {min_value}',
+            'max_value': 'Максимальный вес ингредиента должен быть больше или равен {max_value}',
+        },
     )
 
     class Meta:
@@ -138,7 +143,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
-        min_value=constants.MINTIME, max_value=constants.MAXTIME
+        min_value=constants.MINTIME, max_value=constants.MAXTIME,
+        error_messages={
+            'min_value': 'Минимальное время готовки должно быть больше или равно {min_value}',
+            'max_value': 'Максимальное время готовки должно быть меньше или равно {max_value}',
+        }, 
     )
 
     class Meta:
@@ -156,7 +165,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        tags = self.initial_data.get('tags')
+        tags = self.data.get('tags')
         if not tags:
             raise serializers.ValidationError(
                 {'tags': 'ВЫберите хотябы один тэг'}
@@ -165,7 +174,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'tags': 'Нельзя добавлять одинаковые тэги'}
             )
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = self.data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 {'amount': 'Нельзя создат рецепт без ингредиентов'}
@@ -187,15 +196,13 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def create_ingredients(ingredients, recipe):
-        ingedients_in_recipe = []
-        for ingredient_data in ingredients:
-            ingedients_in_recipe.append(
-                IngredientRecipe(
-                    recipe=recipe,
-                    ingredient=ingredient_data['id'],
-                    amount=ingredient_data['amount'],
-                )
-            )
+        ingedients_in_recipe = [
+            IngredientRecipe(
+                recipe=recipe,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount'],
+            ) for ingredient in ingredients
+        ]
         IngredientRecipe.objects.bulk_create(ingedients_in_recipe)
 
     def create(self, validated_data):
@@ -285,7 +292,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
             'user',
             'recipe',
         )
-        fav_name = 'в избранное'
+        error_message = 'в избранное'
 
     def validate(self, data):
         if self.Meta.model.objects.filter(
@@ -293,7 +300,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
             recipe=data['recipe'],
         ):
             raise serializers.ValidationError(
-                {f'Рецепт уже добавлен {self.Meta.fav_name}'}
+                {f'Рецепт уже добавлен {self.Meta.error_message}'}
             )
         return data
 
@@ -306,7 +313,4 @@ class FavoriteSerializer(serializers.ModelSerializer):
 class ShoppingCartSerializer(FavoriteSerializer):
     class Meta(FavoriteSerializer.Meta):
         model = ShoppingCart
-        # здесь помогло упражнение с permission
-        # где разные сообщения делали для Post и Comments
-        # если конечно помнишь :)
-        fav_name = 'в корзину'
+        error_message = 'в корзину'

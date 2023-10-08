@@ -181,9 +181,6 @@ class AbstractUserRecipe(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
     )
-    # здесь можно добавить, а у Favorite и ShoppingCart убрать
-    # но не знаю как делают на практике
-    # related_name = '%(class)ss',
 
     class Meta:
         abstract = True

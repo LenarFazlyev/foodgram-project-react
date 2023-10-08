@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import F, Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -50,10 +50,9 @@ class CustomUserViewSet(UserViewSet):
         data = {'user': request.user.id, 'author': id}
         context = {'request': request}
         serializer = FollowPostSerializer(data=data, context=context)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, **kwargs):
@@ -121,8 +120,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def delete_fav_or_shopcart(model, request, pk, error_message):
         item = model.objects.filter(recipe=pk, user=request.user)
-        print(item)
-        if item:
+        if item.exists():
             item.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
@@ -155,9 +153,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             IngredientRecipe.objects.filter(
                 recipe__shoppingcarts__user=request.user
             )
-            .values('ingredient__name', 'ingredient__measurement_unit')
+            .values(
+                name=F('ingredient__name'),
+                measurement_unit=F('ingredient__measurement_unit'),
+            )
             .annotate(cart_amount=Sum('amount'))
-            .order_by('ingredient__name')
+            .order_by('name')
         )
         shopping_list = create_shopping_list(ingredients)
         return FileResponse(shopping_list, content_type='text/plain')

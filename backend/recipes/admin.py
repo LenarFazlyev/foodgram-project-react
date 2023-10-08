@@ -27,12 +27,12 @@ class TagRecipeAdmin(admin.ModelAdmin):
 
 class IngredientInLine(admin.TabularInline):
     model = Recipe.ingredients.through
-    min_num = constants.MAXQUANTITY
+    min_num = constants.MINQUANTITY
 
 
 class TagInLine(admin.TabularInline):
     model = Recipe.tags.through
-    min_num = constants.MAXQUANTITY
+    min_num = constants.MINQUANTITY
 
 
 @admin.register(Recipe)

@@ -6,8 +6,8 @@ def create_shopping_list(ingredients):
     shopping_list = f'Ваш список покупок на: {today:%Y-%m-%d}\n\n'
     shopping_list += '\n'.join(
         [
-            f'- {ingredient["ingredient__name"]} '
-            f'({ingredient["ingredient__measurement_unit"]})'
+            f'- {ingredient["name"]} '
+            f'({ingredient["measurement_unit"]})'
             f' - {ingredient["cart_amount"]}'
             for ingredient in ingredients
         ]

@@ -120,8 +120,8 @@ class IngredientRecipeCreateSerializer(serializers.ModelSerializer):
         min_value=constants.MINQUANTITY,
         max_value=constants.MAXQUANTITY,
         error_messages={
-            'min_value': 'Минимальный вес ингредиента должен быть больше или равен {min_value}',
-            'max_value': 'Максимальный вес ингредиента должен быть больше или равен {max_value}',
+            'min_value': 'Вес ингредиента должен быть >= {min_value}',
+            'max_value': 'Вес ингредиента должен быть <= {max_value}',
         },
     )
 
@@ -143,11 +143,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
-        min_value=constants.MINTIME, max_value=constants.MAXTIME,
+        min_value=constants.MINTIME,
+        max_value=constants.MAXTIME,
         error_messages={
-            'min_value': 'Минимальное время готовки должно быть больше или равно {min_value}',
-            'max_value': 'Максимальное время готовки должно быть меньше или равно {max_value}',
-        }, 
+            'min_value': 'Время готовки должно быть >= {min_value}',
+            'max_value': 'Время готовки должно быть <= {max_value}',
+        },
     )
 
     class Meta:
@@ -201,7 +202,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 recipe=recipe,
                 ingredient=ingredient['id'],
                 amount=ingredient['amount'],
-            ) for ingredient in ingredients
+            )
+            for ingredient in ingredients
         ]
         IngredientRecipe.objects.bulk_create(ingedients_in_recipe)
 

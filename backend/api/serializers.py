@@ -177,7 +177,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 {'tags': 'Нельзя добавлять одинаковые тэги'}
             )
         # ingredients = self.data.get('ingredients')
-        ingredients = self.initial_data.get('ingredients') 
+        ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 {'amount': 'Нельзя создат рецепт без ингредиентов'}

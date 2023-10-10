@@ -166,8 +166,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
     def validate(self, data):
-        # tags = self.data.get('tags')
-        tags = self.initial_data.get('tags')
+        tags = data.get('tags')
+        # tags = self.initial_data.get('tags')
         if not tags:
             raise serializers.ValidationError(
                 {'tags': 'ВЫберите хотябы один тэг'}
@@ -176,8 +176,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'tags': 'Нельзя добавлять одинаковые тэги'}
             )
-        # ingredients = self.data.get('ingredients')
-        ingredients = self.initial_data.get('ingredients')
+        ingredients = data.get('ingredients')
+        # ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 {'amount': 'Нельзя создат рецепт без ингредиентов'}

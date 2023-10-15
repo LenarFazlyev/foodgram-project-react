@@ -63,7 +63,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         'Фото рецепта',
-        upload_to='recipes/images',
+        upload_to='recipes/image/',
     )
     text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(

@@ -131,3 +131,5 @@ dmypy.json
 # .idea
 .idea
 temp.py
+docker-compose.yml
+media/

@@ -167,7 +167,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         tags = data.get('tags')
-        # tags = self.initial_data.get('tags')
         if not tags:
             raise serializers.ValidationError(
                 {'tags': 'ВЫберите хотябы один тэг'}
@@ -177,7 +176,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 {'tags': 'Нельзя добавлять одинаковые тэги'}
             )
         ingredients = data.get('ingredients')
-        # ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 {'amount': 'Нельзя создат рецепт без ингредиентов'}

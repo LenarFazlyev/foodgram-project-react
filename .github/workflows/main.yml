@@ -82,7 +82,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          # strip_components: 1
+          strip_components: 1
           source: "infra/docker-compose.production.yml,infra/nginx.conf"
           target: "foodgram"
       - name: Copy data and docs via ssh
@@ -91,7 +91,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           source: "docs"
           target: "foodgram"
       - name: executing remote ssh command to deploy
